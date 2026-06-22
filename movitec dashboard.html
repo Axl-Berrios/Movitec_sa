@@ -1,0 +1,438 @@
+
+<h2 class="sr-only">Dashboard ejecutivo Movitec S.A. — Fases 5, 6 y 7: hallazgos, KPIs y roadmap de mejora operacional</h2>
+
+<style>
+  :root {
+    --azul: #1A3A5C;
+    --azul2: #2E6DA4;
+    --rojo: #C0392B;
+    --verde: #1E8449;
+    --naranja: #E67E22;
+    --gris-bg: var(--color-background-secondary);
+  }
+  .mv-wrap { font-family: var(--font-sans); padding: 0; }
+  .mv-header { background: var(--azul); color: #fff; padding: 18px 24px 14px; border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; }
+  .mv-header h1 { margin: 0 0 2px; font-size: 18px; font-weight: 500; }
+  .mv-header p  { margin: 0; font-size: 12px; opacity: .7; }
+  .mv-tabs { display: flex; border-bottom: 1px solid var(--color-border-tertiary); background: var(--color-background-primary); }
+  .mv-tab { padding: 10px 20px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--color-text-secondary); transition: all .15s; user-select: none; }
+  .mv-tab.active { color: var(--azul2); border-bottom-color: var(--azul2); font-weight: 500; }
+  .mv-tab:hover:not(.active) { background: var(--color-background-secondary); }
+  .mv-panel { display: none; padding: 20px; background: var(--color-background-primary); border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); }
+  .mv-panel.active { display: block; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; border-left: 3px solid transparent; }
+  .kpi-card.danger { border-left-color: var(--rojo); }
+  .kpi-card.warn   { border-left-color: var(--naranja); }
+  .kpi-card.ok     { border-left-color: var(--verde); }
+  .kpi-label { font-size: 11px; color: var(--color-text-secondary); margin: 0 0 4px; text-transform: uppercase; letter-spacing: .04em; }
+  .kpi-value { font-size: 22px; font-weight: 500; margin: 0 0 2px; color: var(--color-text-primary); }
+  .kpi-sub   { font-size: 11px; color: var(--color-text-secondary); margin: 0; }
+  .kpi-card.danger .kpi-value { color: var(--rojo); }
+  .kpi-card.warn   .kpi-value { color: var(--naranja); }
+  .kpi-card.ok     .kpi-value { color: var(--verde); }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin: 0 0 10px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 6px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-label { font-size: 12px; color: var(--color-text-primary); width: 130px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bar-track { flex: 1; height: 14px; background: var(--color-background-secondary); border-radius: 7px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 7px; transition: width .4s ease; }
+  .bar-val   { font-size: 11px; color: var(--color-text-secondary); width: 44px; text-align: right; flex-shrink: 0; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .badge-red    { background: #FCEBEB; color: #A32D2D; }
+  .badge-orange { background: #FAEEDA; color: #854F0B; }
+  .badge-green  { background: #EAF3DE; color: #3B6D11; }
+  .badge-blue   { background: #E6F1FB; color: #185FA5; }
+  .dark .badge-red    { background: #501313; color: #F7C1C1; }
+  .dark .badge-orange { background: #412402; color: #FAC775; }
+  .dark .badge-green  { background: #173404; color: #C0DD97; }
+  .dark .badge-blue   { background: #042C53; color: #85B7EB; }
+  .tec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .tec-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+  .tec-name { font-size: 13px; font-weight: 500; margin: 0 0 6px; color: var(--color-text-primary); display: flex; align-items: center; justify-content: space-between; }
+  .tec-stat { font-size: 11px; color: var(--color-text-secondary); display: flex; justify-content: space-between; margin-bottom: 3px; }
+  .tec-stat span:last-child { font-weight: 500; color: var(--color-text-primary); }
+  .alert-box { border-radius: var(--border-radius-md); padding: 12px 14px; margin-bottom: 10px; display: flex; gap: 10px; align-items: flex-start; }
+  .alert-box.critical { background: #FCEBEB; border-left: 3px solid var(--rojo); }
+  .alert-box.warning  { background: #FAEEDA; border-left: 3px solid var(--naranja); }
+  .alert-box.info     { background: #E6F1FB; border-left: 3px solid var(--azul2); }
+  .dark .alert-box.critical { background: #501313; }
+  .dark .alert-box.warning  { background: #412402; }
+  .dark .alert-box.info     { background: #042C53; }
+  .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .alert-title { font-size: 12px; font-weight: 500; margin: 0 0 2px; color: var(--color-text-primary); }
+  .alert-body  { font-size: 11px; color: var(--color-text-secondary); margin: 0; line-height: 1.5; }
+  .road-item { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+  .road-dot  { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; color: #fff; }
+  .road-dot.r { background: var(--rojo); }
+  .road-dot.o { background: var(--naranja); }
+  .road-dot.g { background: var(--verde); }
+  .road-content { flex: 1; }
+  .road-content h4 { margin: 0 0 2px; font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .road-content p  { margin: 0; font-size: 11px; color: var(--color-text-secondary); line-height: 1.5; }
+  .road-meta { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; }
+  .saving-total { background: linear-gradient(90deg, #1A3A5C 0%, #2E6DA4 100%); color: #fff; border-radius: var(--border-radius-md); padding: 16px 20px; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .saving-total h3 { margin: 0; font-size: 13px; font-weight: 400; opacity: .8; }
+  .saving-total span { font-size: 22px; font-weight: 500; }
+  table.eq-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.eq-table th { text-align: left; padding: 6px 8px; background: var(--color-background-secondary); color: var(--color-text-secondary); font-weight: 500; font-size: 11px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  table.eq-table td { padding: 7px 8px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); }
+  table.eq-table tr:hover td { background: var(--color-background-secondary); }
+  .risk-pill { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .risk-high   { background: #FCEBEB; color: #A32D2D; }
+  .risk-med    { background: #FAEEDA; color: #854F0B; }
+  .risk-low    { background: #EAF3DE; color: #3B6D11; }
+  .dark .risk-high { background: #501313; color: #F7C1C1; }
+  .dark .risk-med  { background: #412402; color: #FAC775; }
+  .dark .risk-low  { background: #173404; color: #C0DD97; }
+  @media (max-width: 560px) {
+    .kpi-grid { grid-template-columns: repeat(2,1fr); }
+    .tec-grid  { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="mv-wrap">
+  <div class="mv-header">
+    <h1><i class="ti ti-chart-bar" aria-hidden="true"></i>  Movitec S.A. — Output Ejecutivo · Fases 5–7</h1>
+    <p>5.200 órdenes de trabajo · 3 años · 15 técnicos · 15 equipos · Generado automáticamente</p>
+  </div>
+  <div class="mv-tabs">
+    <div class="mv-tab active" onclick="showTab('kpis')"><i class="ti ti-gauge" aria-hidden="true"></i> KPIs</div>
+    <div class="mv-tab" onclick="showTab('tecnicos')"><i class="ti ti-users" aria-hidden="true"></i> Técnicos</div>
+    <div class="mv-tab" onclick="showTab('equipos')"><i class="ti ti-settings" aria-hidden="true"></i> Equipos</div>
+    <div class="mv-tab" onclick="showTab('alertas')"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Alertas</div>
+    <div class="mv-tab" onclick="showTab('roadmap')"><i class="ti ti-road" aria-hidden="true"></i> Roadmap</div>
+  </div>
+
+  <!-- ── TAB: KPIs ─────────────────────────────────────────────── -->
+  <div id="tab-kpis" class="mv-panel active">
+    <div class="kpi-grid">
+      <div class="kpi-card danger">
+        <p class="kpi-label">MTTR Global</p>
+        <p class="kpi-value">49.9h</p>
+        <p class="kpi-sub">Ref: &lt;8h · Desv: +41.9h</p>
+      </div>
+      <div class="kpi-card danger">
+        <p class="kpi-label">% Retrabajo</p>
+        <p class="kpi-value">21.7%</p>
+        <p class="kpi-sub">Benchmark ≤10% · +11.7pp</p>
+      </div>
+      <div class="kpi-card danger">
+        <p class="kpi-label">SLA Alta Prioridad</p>
+        <p class="kpi-value">65.8%</p>
+        <p class="kpi-sub">Objetivo ≥90% · −24.2pp</p>
+      </div>
+      <div class="kpi-card warn">
+        <p class="kpi-label">Costo Promedio / OT</p>
+        <p class="kpi-value">$362K</p>
+        <p class="kpi-sub">CLP · P95: $1.21M</p>
+      </div>
+      <div class="kpi-card warn">
+        <p class="kpi-label">SLA Media Prioridad</p>
+        <p class="kpi-value">78.1%</p>
+        <p class="kpi-sub">Objetivo ≥90% · −11.9pp</p>
+      </div>
+      <div class="kpi-card warn">
+        <p class="kpi-label">SLA Baja Prioridad</p>
+        <p class="kpi-value">88.1%</p>
+        <p class="kpi-sub">Objetivo ≥90% · −1.9pp</p>
+      </div>
+      <div class="kpi-card ok">
+        <p class="kpi-label">OT Cerradas</p>
+        <p class="kpi-value">3.910</p>
+        <p class="kpi-sub">75.2% del total</p>
+      </div>
+      <div class="kpi-card ok">
+        <p class="kpi-label">Costo Total (3 años)</p>
+        <p class="kpi-value">$1.88B</p>
+        <p class="kpi-sub">CLP · Flota completa</p>
+      </div>
+    </div>
+    <p class="section-title">MTTR por tipo de falla</p>
+    <div id="mttr-bars"></div>
+    <p class="section-title" style="margin-top:16px">Costo acumulado por tipo de falla</p>
+    <div id="cost-bars"></div>
+  </div>
+
+  <!-- ── TAB: TÉCNICOS ─────────────────────────────────────────── -->
+  <div id="tab-tecnicos" class="mv-panel">
+    <p class="section-title">Clustering de eficiencia — 3 segmentos</p>
+    <div class="tec-grid" id="tec-cards"></div>
+    <p class="section-title">Score de ineficiencia (menor = mejor)</p>
+    <div id="tec-bars"></div>
+  </div>
+
+  <!-- ── TAB: EQUIPOS ──────────────────────────────────────────── -->
+  <div id="tab-equipos" class="mv-panel">
+    <p class="section-title">Análisis de riesgo por equipo (top 10)</p>
+    <table class="eq-table">
+      <thead>
+        <tr><th>Equipo</th><th>Risk score</th><th>% Retrabajo</th><th>% No planif.</th><th>Costo total</th><th>Nivel</th></tr>
+      </thead>
+      <tbody id="eq-rows"></tbody>
+    </table>
+  </div>
+
+  <!-- ── TAB: ALERTAS ──────────────────────────────────────────── -->
+  <div id="tab-alertas" class="mv-panel">
+    <div class="alert-box critical">
+      <span class="alert-icon">🔴</span>
+      <div>
+        <p class="alert-title">Ignacio Ramírez — Score 100 (Cluster Crítico)</p>
+        <p class="alert-body">11 años exp. · Costo prom $677.805 CLP/OT (+88% sobre media) · Retrabajo 43.8% · Requiere plan de mejora inmediato con KPIs vinculantes y supervisión en OT de alta prioridad.</p>
+      </div>
+    </div>
+    <div class="alert-box critical">
+      <span class="alert-icon">🔴</span>
+      <div>
+        <p class="alert-title">Compresor C-102 — Risk Score 99/100</p>
+        <p class="alert-body">62% fallas no planificadas · Retrabajo 31.7% · Costo acumulado líder de flota · Candidato a overhaul inmediato y evaluación de reemplazo. Plan de repuestos críticos requerido.</p>
+      </div>
+    </div>
+    <div class="alert-box critical">
+      <span class="alert-icon">🔴</span>
+      <div>
+        <p class="alert-title">Retrabajo 21.7% — 2× el benchmark internacional</p>
+        <p class="alert-body">Costo directo atribuible: ~$408M CLP en 3 años. Proyección anual de ahorro si se reduce a 10%: ~$180M CLP/año. Sin protocolo anti-retrabajo activo en ningún tipo de falla.</p>
+      </div>
+    </div>
+    <div class="alert-box critical">
+      <span class="alert-icon">🔴</span>
+      <div>
+        <p class="alert-title">SLA Alta Prioridad: 65.8% vs objetivo 90%</p>
+        <p class="alert-body">Brecha de 24.2pp. Ausencia de guardia técnica 24/7 y protocolo de escalamiento documentado para emergencias. Cada hora de atraso en activos críticos representa riesgo operativo directo.</p>
+      </div>
+    </div>
+    <div class="alert-box warning">
+      <span class="alert-icon">🟠</span>
+      <div>
+        <p class="alert-title">157 outliers Mahalanobis detectados — 4.0% del dataset</p>
+        <p class="alert-body">Costos anómalos multivariados (horas + costo + tiempo resolución). Sin control de aprobación gerencial para OT superiores a media+2.5σ. Impacto desproporcionado en promedios de flota.</p>
+      </div>
+    </div>
+    <div class="alert-box warning">
+      <span class="alert-icon">🟠</span>
+      <div>
+        <p class="alert-title">MTTR Global 49.9h — 6× el benchmark estándar</p>
+        <p class="alert-body">Fallas eléctricas y correctivas como tipos más lentos (53.5h y 52.4h). Indicador de cuellos de botella logísticos: ausencia de bodega de repuestos críticos on-site y contratos marco con proveedores.</p>
+      </div>
+    </div>
+    <div class="alert-box info">
+      <span class="alert-icon">🔵</span>
+      <div>
+        <p class="alert-title">5 equipos en zona de alerta / crítico</p>
+        <p class="alert-body">Compresor C-102 (99), Conveyor CV-901 (63), Motor M-303 (57), Bomba B-202 (54), Grúa GR-801 (41). Concentran el 38% del costo total de flota. Candidatos a mantenimiento predictivo IoT.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB: ROADMAP ──────────────────────────────────────────── -->
+  <div id="tab-roadmap" class="mv-panel">
+    <p class="section-title">Plan de acción — 90 días</p>
+    <div class="road-item">
+      <div class="road-dot r">R1</div>
+      <div class="road-content">
+        <h4>Protocolo anti-retrabajo + check-list por tipo de falla</h4>
+        <p>Revisión de calidad obligatoria post-intervención. Auditoría de OT con retrabajo recurrente. Responsable: Jefatura de Mantenimiento.</p>
+        <p class="road-meta"><span class="badge badge-red">Inmediato · 0–30 días</span> &nbsp; Ahorro estimado: ~$180M CLP/año</p>
+      </div>
+    </div>
+    <div class="road-item">
+      <div class="road-dot r">R2</div>
+      <div class="road-content">
+        <h4>Plan de mejora técnico Ignacio Ramírez</h4>
+        <p>KPIs mensuales vinculantes: retrabajo ≤15%, costo prom ≤$500K. Supervisión en OT de alta prioridad. Evaluación a 60 días con decisión documentada.</p>
+        <p class="road-meta"><span class="badge badge-red">Inmediato · 0–30 días</span> &nbsp; Ahorro estimado: ~$45M CLP/año</p>
+      </div>
+    </div>
+    <div class="road-item">
+      <div class="road-dot r">R3</div>
+      <div class="road-content">
+        <h4>Overhaul Compresor C-102</h4>
+        <p>Análisis de vida útil residual. Plan de repuestos críticos on-site. Evaluación de reemplazo si ROI negativo en 18 meses. Proveedor de servicio certificado.</p>
+        <p class="road-meta"><span class="badge badge-red">Urgente · 30 días</span> &nbsp; Reducción estimada: 40% fallas no planificadas</p>
+      </div>
+    </div>
+    <div class="road-item">
+      <div class="road-dot o">R4</div>
+      <div class="road-content">
+        <h4>Protocolo SLA Alta Prioridad + guardia 24/7</h4>
+        <p>Técnico de guardia rotativo para emergencias. Tablero de control en tiempo real por prioridad. Escalamiento automático si OT supera SLA en 2h.</p>
+        <p class="road-meta"><span class="badge badge-orange">Corto plazo · 30–60 días</span> &nbsp; +24pp cumplimiento SLA</p>
+      </div>
+    </div>
+    <div class="road-item">
+      <div class="road-dot o">R5</div>
+      <div class="road-content">
+        <h4>Bodega de repuestos críticos + contratos marco</h4>
+        <p>Stock mínimo para top-5 equipos de mayor riesgo. Contrato marco con 2 proveedores para entrega ≤4h en fallas correctivas. Elimina principal cuello de botella del MTTR.</p>
+        <p class="road-meta"><span class="badge badge-orange">Corto plazo · 60 días</span> &nbsp; Reducción MTTR estimada: 40%</p>
+      </div>
+    </div>
+    <div class="road-item">
+      <div class="road-dot g">R6</div>
+      <div class="road-content">
+        <h4>Mantenimiento predictivo IoT — 3 equipos piloto</h4>
+        <p>Sensores de vibración y temperatura en Conveyor CV-901, Motor M-303 y Bomba B-202. Dashboard de salud de activos. Trigger automático de OT preventiva cuando se supere umbral.</p>
+        <p class="road-meta"><span class="badge badge-green">Mediano plazo · 60–90 días</span> &nbsp; Ahorro estimado: ~$90M CLP/año</p>
+      </div>
+    </div>
+    <div class="road-item">
+      <div class="road-dot g">R7</div>
+      <div class="road-content">
+        <h4>Sistema de alertas de costos anómalos</h4>
+        <p>Bloqueo automático si costo estimado OT supera media+2.5σ → requiere aprobación gerencial. Reporte semanal de outliers. Cierra la brecha de control financiero.</p>
+        <p class="road-meta"><span class="badge badge-green">Mediano plazo · 90 días</span> &nbsp; Control de sobrecostos</p>
+      </div>
+    </div>
+    <div class="saving-total">
+      <div>
+        <h3>Potencial de ahorro total estimado</h3>
+        <p style="margin:4px 0 0;font-size:11px;opacity:.6">Implementación completa del roadmap · Período de 12 meses</p>
+      </div>
+      <span>~$375M CLP/año</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.mv-tab').forEach((t,i) => t.classList.remove('active'));
+  document.querySelectorAll('.mv-panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'kpis') renderKpiBars();
+  if (name === 'tecnicos') renderTecnicos();
+  if (name === 'equipos') renderEquipos();
+}
+
+const MTTR = [
+  { tipo: 'Eléctrica',   h: 53.5, col: '#2E86AB' },
+  { tipo: 'Correctiva',  h: 52.4, col: '#E67E22' },
+  { tipo: 'Preventiva',  h: 49.7, col: '#3BB273' },
+  { tipo: 'Emergencia',  h: 46.7, col: '#8B1A1A' },
+  { tipo: 'Mecánica',    h: 46.5, col: '#E84855' },
+];
+const COSTOS = [
+  { tipo: 'Correctiva',  m: 523, col: '#E67E22' },
+  { tipo: 'Emergencia',  m: 492, col: '#8B1A1A' },
+  { tipo: 'Mecánica',    m: 421, col: '#E84855' },
+  { tipo: 'Eléctrica',   m: 318, col: '#2E86AB' },
+  { tipo: 'Preventiva',  m: 133, col: '#3BB273' },
+];
+const TECNICOS = [
+  { nombre: 'Felipe Morales',    score: 9.2,  ret: 12.1, costo: 348, cluster: 'Eficiente',   horas: 6.8  },
+  { nombre: 'Camila Riquelme',   score: 9.2,  ret: 15.6, costo: 319, cluster: 'Eficiente',   horas: 6.5  },
+  { nombre: 'Andrés Herrera',    score: 10.9, ret: 16.0, costo: 337, cluster: 'Eficiente',   horas: 7.1  },
+  { nombre: 'Carlos Mendoza',    score: 13.4, ret: 17.2, costo: 345, cluster: 'Eficiente',   horas: 7.3  },
+  { nombre: 'Patricia Soto',     score: 15.1, ret: 15.9, costo: 358, cluster: 'Eficiente',   horas: 7.0  },
+  { nombre: 'Rodrigo Fuentes',   score: 17.8, ret: 18.1, costo: 363, cluster: 'Eficiente',   horas: 7.4  },
+  { nombre: 'Daniela Pérez',     score: 21.3, ret: 20.4, costo: 371, cluster: 'Intermedio',  horas: 8.6  },
+  { nombre: 'Jorge Castillo',    score: 22.1, ret: 19.8, costo: 368, cluster: 'Intermedio',  horas: 8.4  },
+  { nombre: 'Claudia Vargas',    score: 22.8, ret: 21.1, costo: 375, cluster: 'Intermedio',  horas: 8.8  },
+  { nombre: 'Miguel Torres',     score: 23.5, ret: 20.9, costo: 372, cluster: 'Intermedio',  horas: 8.7  },
+  { nombre: 'Valentina Lagos',   score: 24.2, ret: 28.4, costo: 362, cluster: 'Intermedio',  horas: 9.5  },
+  { nombre: 'Sebastián Núñez',   score: 25.0, ret: 30.1, costo: 345, cluster: 'Intermedio',  horas: 9.8  },
+  { nombre: 'Luis Espinoza',     score: 26.0, ret: 21.3, costo: 381, cluster: 'Intermedio',  horas: 8.9  },
+  { nombre: 'Roberto Silva',     score: 29.5, ret: 33.2, costo: 305, cluster: 'Intermedio',  horas: 11.2 },
+  { nombre: 'Ignacio Ramírez',   score: 100,  ret: 43.8, costo: 678, cluster: 'Crítico',     horas: 18.4 },
+];
+const EQUIPOS = [
+  { eq: 'Compresor C-102', risk: 99, ret: 31.7, noPlan: 62, costo: 142, nivel: 'CRÍTICO' },
+  { eq: 'Conveyor CV-901', risk: 63, ret: 23.5, noPlan: 60, costo: 128, nivel: 'ALERTA'  },
+  { eq: 'Motor M-303',     risk: 57, ret: 25.5, noPlan: 58, costo: 122, nivel: 'ALERTA'  },
+  { eq: 'Bomba B-202',     risk: 54, ret: 23.0, noPlan: 59, costo: 119, nivel: 'ALERTA'  },
+  { eq: 'Grúa GR-801',     risk: 41, ret: 21.8, noPlan: 35, costo: 112, nivel: 'ALERTA'  },
+  { eq: 'Motor M-302',     risk: 34, ret: 20.1, noPlan: 30, costo: 108, nivel: 'Normal'  },
+  { eq: 'Turbina T-401',   risk: 31, ret: 18.9, noPlan: 28, costo: 105, nivel: 'Normal'  },
+  { eq: 'Bomba B-201',     risk: 28, ret: 17.4, noPlan: 24, costo: 99,  nivel: 'Normal'  },
+  { eq: 'Chiller CH-501',  risk: 25, ret: 16.2, noPlan: 22, costo: 94,  nivel: 'Normal'  },
+  { eq: 'Compresor C-101', risk: 22, ret: 15.1, noPlan: 20, costo: 88,  nivel: 'Normal'  },
+];
+
+function renderBar(container, items, keyLabel, keyVal, maxVal, fmt, colorFn) {
+  container.innerHTML = items.map(d => `
+    <div class="bar-row">
+      <span class="bar-label">${d[keyLabel]}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${Math.round(d[keyVal]/maxVal*100)}%;background:${colorFn(d)}"></div>
+      </div>
+      <span class="bar-val">${fmt(d[keyVal])}</span>
+    </div>`).join('');
+}
+
+function renderKpiBars() {
+  const m = document.getElementById('mttr-bars');
+  if (m && !m.dataset.done) {
+    renderBar(m, MTTR, 'tipo', 'h', 60, v => v.toFixed(1)+'h', d => d.col);
+    m.dataset.done = 1;
+  }
+  const c = document.getElementById('cost-bars');
+  if (c && !c.dataset.done) {
+    renderBar(c, COSTOS, 'tipo', 'm', 600, v => '$'+v+'M', d => d.col);
+    c.dataset.done = 1;
+  }
+}
+
+function clusterColor(cl) {
+  return cl === 'Eficiente' ? '#1E8449' : cl === 'Crítico' ? '#C0392B' : '#E67E22';
+}
+function clusterBadge(cl) {
+  const cls = cl === 'Eficiente' ? 'badge-green' : cl === 'Crítico' ? 'badge-red' : 'badge-orange';
+  return `<span class="badge ${cls}">${cl}</span>`;
+}
+
+function renderTecnicos() {
+  const top = TECNICOS.filter(t => t.cluster === 'Eficiente').slice(0, 6);
+  const crit = TECNICOS.filter(t => t.cluster === 'Crítico');
+  const warn = TECNICOS.filter(t => t.cluster === 'Intermedio');
+  const grid = document.getElementById('tec-cards');
+  if (grid && !grid.dataset.done) {
+    const show = [...crit, ...warn.slice(0,3), ...top.slice(0,3)].slice(0,6);
+    grid.innerHTML = show.map(t => `
+      <div class="tec-card">
+        <div class="tec-name">${t.nombre} ${clusterBadge(t.cluster)}</div>
+        <div class="tec-stat"><span>Score inef.</span><span style="color:${clusterColor(t.cluster)};font-weight:500">${t.score}</span></div>
+        <div class="tec-stat"><span>% Retrabajo</span><span>${t.ret.toFixed(1)}%</span></div>
+        <div class="tec-stat"><span>Costo prom.</span><span>$${t.costo}K</span></div>
+        <div class="tec-stat"><span>Horas prom.</span><span>${t.horas.toFixed(1)}h</span></div>
+      </div>`).join('');
+    grid.dataset.done = 1;
+  }
+  const bars = document.getElementById('tec-bars');
+  if (bars && !bars.dataset.done) {
+    const sorted = [...TECNICOS].sort((a,b) => a.score - b.score);
+    bars.innerHTML = sorted.map(t => `
+      <div class="bar-row">
+        <span class="bar-label">${t.nombre.split(' ')[0]} ${t.nombre.split(' ')[1]?.charAt(0)||''}</span>
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${Math.round(t.score)}%;background:${clusterColor(t.cluster)}"></div>
+        </div>
+        <span class="bar-val">${t.score.toFixed(0)}</span>
+      </div>`).join('');
+    bars.dataset.done = 1;
+  }
+}
+
+function renderEquipos() {
+  const tbody = document.getElementById('eq-rows');
+  if (tbody && !tbody.dataset.done) {
+    const sorted = [...EQUIPOS].sort((a,b) => b.risk - a.risk);
+    tbody.innerHTML = sorted.map(e => {
+      const cls = e.nivel === 'CRÍTICO' ? 'risk-high' : e.nivel === 'ALERTA' ? 'risk-med' : 'risk-low';
+      return `<tr>
+        <td>${e.eq}</td>
+        <td><div style="display:flex;align-items:center;gap:6px">
+          <div style="width:${Math.round(e.risk*0.6)}px;height:8px;background:${e.nivel==='CRÍTICO'?'var(--rojo)':e.nivel==='ALERTA'?'var(--naranja)':'var(--verde)'};border-radius:4px;min-width:4px"></div>
+          <span>${e.risk}</span></div></td>
+        <td>${e.ret.toFixed(1)}%</td>
+        <td>${e.noPlan}%</td>
+        <td>$${e.costo}M</td>
+        <td><span class="risk-pill ${cls}">${e.nivel}</span></td>
+      </tr>`;
+    }).join('');
+    tbody.dataset.done = 1;
+  }
+}
+
+renderKpiBars();
+</script>
